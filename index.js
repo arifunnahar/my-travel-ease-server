@@ -35,7 +35,7 @@ async function run() {
         const productCollection = db.collection("products");
         const bookingsCollection = db.collection("bookings");
 
-        // --- Test Route ---
+        // --- Test Route ------------------
         app.get('/test', async (req, res) => {
             const count = await productCollection.countDocuments();
             res.json({ message: "DB Connected!", count });
