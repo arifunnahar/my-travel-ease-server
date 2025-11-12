@@ -31,7 +31,7 @@ async function run() {
 
         const db = client.db("travelease_db");
 
-        // Collections
+       
         const productCollection = db.collection("products");
         const bookingsCollection = db.collection("bookings");
 
