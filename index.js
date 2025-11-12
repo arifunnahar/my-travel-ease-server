@@ -65,7 +65,7 @@ async function run() {
             }
         });
 
-        // --- Bookings Routes ---
+        // -------------- Bookings Routes -----------------------------
         // Get bookings
         app.get('/bookings', async (req, res) => {
             try {
