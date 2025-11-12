@@ -31,17 +31,17 @@ async function run() {
 
         const db = client.db("travelease_db");
 
-        //----------- Collections----------------
+        //----------- Collections---------------------------
         const productCollection = db.collection("products");
         const bookingsCollection = db.collection("bookings");
 
-        // --------Test Route ------------------
+        // --------Test Route ------------------------------
         app.get('/test', async (req, res) => {
             const count = await productCollection.countDocuments();
             res.json({ message: "DB Connected!", count });
         });
 
-        // --- Products Routes ---
+        // --- Products Routes -----------------------------------
         app.get('/products', async (req, res) => {
             try {
                 const products = await productCollection.find().toArray();
