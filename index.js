@@ -14,7 +14,7 @@ app.use(express.json());
 const DB = process.env.DB_USERNAME;
 const PASS = process.env.DB_PASSWORD;
 
-// MongoDB URI
+// MongoDB Uri-----
 const uri = `mongodb+srv://${DB}:${PASS}@cluster0.7eiaaun.mongodb.net/travelease_db?retryWrites=true&w=majority&tls=true`;
 
 const client = new MongoClient(uri, {
@@ -50,7 +50,7 @@ async function run() {
 
         // ---------------- Products Routes -----------------------------------
 
-        // Get all products
+        // Get all products------
         app.get('/products', async (req, res) => {
             try {
                 const products = await productCollection.find().toArray();
@@ -60,7 +60,7 @@ async function run() {
             }
         });
 
-        // Get single product by id---
+        // Get single product by id-----------------
         app.get('/products/:id', async (req, res) => {
             try {
                 const { id } = req.params;
@@ -74,7 +74,7 @@ async function run() {
         });
 
       
-         // Add a product---------------------------
+         //---- Add a product---------------------------
 
        app.post('/products', async (req, res) => {
         try {
@@ -106,7 +106,7 @@ async function run() {
             });
 
 
-        //-------- UPDATE Form product----------------------------------------------------
+        //-------- Update Form product----------------------------------------------------
         app.put('/products/:id', async (req, res) => {
             try {
                 const { id } = req.params;
@@ -184,7 +184,7 @@ async function run() {
             }
         });
 
-        // Delete a booking
+        // Delete booking
         app.delete('/bookings/:id', async (req, res) => {
             try {
                 const { id } = req.params;
