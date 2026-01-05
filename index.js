@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const multer = require('multer');
 require('dotenv').config();
 
 const app = express();
@@ -9,12 +10,25 @@ const port = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); 
+
+// Multer config
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/'); 
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
+const upload = multer({ storage });
+
 
 // MongoDB credentials
 const DB = process.env.DB_USERNAME;
 const PASS = process.env.DB_PASSWORD;
 
-// MongoDB Uri-----
+// MongoDB URI
 const uri = `mongodb+srv://${DB}:${PASS}@cluster0.7eiaaun.mongodb.net/travelease_db?retryWrites=true&w=majority&tls=true`;
 
 const client = new MongoClient(uri, {
@@ -41,6 +55,7 @@ async function run() {
         const db = client.db("travelease_db");
         const productCollection = db.collection("products");
         const bookingsCollection = db.collection("bookings");
+        const usersCollection = db.collection("users");
 
         // -------- Test Route ------------------------------
         app.get('/test', async (req, res) => {
@@ -48,18 +63,95 @@ async function run() {
             res.json({ message: "DB Connected!", count });
         });
 
+
+
+
+// Get all users
+app.get("/users", async (req, res) => {
+  try {
+    const users = await usersCollection.find({}).toArray();
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Add a user (on signup)
+app.post("/users", async (req, res) => {
+  try {
+    const user = req.body;
+    const result = await usersCollection.insertOne(user);
+    res.status(201).json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+        
+ // Update user profile (name and phone)
+
+
+
+
+ app.put('/users/:email', async (req, res) => {
+      try {
+        const { email } = req.params;
+        const { name, phone } = req.body;
+
+        if (!name && !phone) return res.status(400).json({ error: 'No data to update' });
+
+        const updateFields = {};
+        if (name) updateFields.displayName = name;
+        if (phone) updateFields.phone = phone;
+
+        const result = await usersCollection.findOneAndUpdate(
+          { email },
+          { $set: updateFields },
+          { returnDocument: 'after' }
+        );
+
+        if (!result.value) return res.status(404).json({ error: 'User not found' });
+
+        res.json(result.value);
+      } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+      }
+    });
+
+
+
+
+
+
+
+
         // ---------------- Products Routes -----------------------------------
 
         // Get all products------
-        app.get('/products', async (req, res) => {
-            try {
-                const products = await productCollection.find().toArray();
-                res.json(products);
-            } catch (err) {
-                res.status(500).json({ error: err.message });
-            }
-        });
+        // app.get('/products', async (req, res) => {
+        //     try {
+        //         const products = await productCollection.find().toArray();
+        //         res.json(products);
+        //     } catch (err) {
+        //         res.status(500).json({ error: err.message });
+        //     }
+        // });
 
+
+        app.get('/products', async (req, res) => {
+    try {
+        const { userEmail } = req.query; 
+        const query = userEmail ? { userEmail } : {};
+        const products = await productCollection.find(query).toArray();
+        res.json(products);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
+        
         // Get single product by id-----------------
         app.get('/products/:id', async (req, res) => {
             try {
@@ -167,6 +259,7 @@ async function run() {
                 res.status(500).json({ error: err.message });
             }
         });
+        
 
         // Add booking
         app.post('/bookings', async (req, res) => {
@@ -184,7 +277,7 @@ async function run() {
             }
         });
 
-        // Delete booking
+        // Delete a booking
         app.delete('/bookings/:id', async (req, res) => {
             try {
                 const { id } = req.params;
@@ -198,6 +291,10 @@ async function run() {
                 res.status(500).json({ error: err.message });
             }
         });
+
+
+
+        
 
         // Start server
         app.listen(port, () => {
