@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-const multer = require('multer');
 require('dotenv').config();
 
 const app = express();
@@ -10,19 +9,6 @@ const port = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); 
-
-// Multer config
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/'); 
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
-  }
-});
-const upload = multer({ storage });
-
 
 // MongoDB credentials
 const DB = process.env.DB_USERNAME;
@@ -87,13 +73,9 @@ app.post("/users", async (req, res) => {
   }
 });
 
-        
- // Update user profile (name and phone)
 
-
-
-
- app.put('/users/:email', async (req, res) => {
+ // ---------------- Update user profile -------------------
+    app.put('/users/:email', async (req, res) => {
       try {
         const { email } = req.params;
         const { name, phone } = req.body;
@@ -118,6 +100,10 @@ app.post("/users", async (req, res) => {
         res.status(500).json({ error: err.message });
       }
     });
+
+
+
+
 
 
 
